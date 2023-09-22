@@ -1,13 +1,36 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 # Create your views here.
 from django.http import HttpResponse
 from .models import *
 from datetime import time, date, timedelta
+from json import dumps
 
 
 def index(request):
     return HttpResponse("Hello, world!")
+
+def get_lessons(request, user_id):
+    user = get_object_or_404(Students, id=user_id)
+    lessons = user.products.values('lessons__id').distinct()
+    history = StudentHistory.objects.filter(student=user, lesson__in=lessons)
+    answer = {
+        'user': {
+            'name': user.name,
+            'surname': user.surname
+        },
+        'lessons':
+            [
+                {
+                    'title': h.lesson.title,
+                    'last_viewed_date': str(h.lastdate),
+                    'viewed': str(h.viewed),
+                    'completed': h.complete
+                }
+                for h in history
+            ]
+    }
+    return HttpResponse(dumps(answer))
 
 def init_db(request):
     Students.objects.all().delete()
@@ -67,6 +90,6 @@ def init_db(request):
         lesson=lj2,
         viewed=time(0, 25, 0)
     ).save()
-    d = str(StudentHistory.objects.all())
-    return HttpResponse(d.encode('utf-8'))
+    d = '<p>'.join(str(x) for x in StudentHistory.objects.all())
+    return HttpResponse(d)
 
