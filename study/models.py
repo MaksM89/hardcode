@@ -3,10 +3,6 @@ from datetime import date
 
 # Create your models here.
 
-# class Owner(models.Model):
-#     name = models.TextField()
-#     surname = models.TextField()
-
 class Lessons(models.Model):
     title = models.TextField()
     videolink = models.FilePathField()
@@ -16,7 +12,6 @@ class Lessons(models.Model):
         return f'L <{self.title}, {self.videolink}, {self.duration}>'
 
 class Products(models.Model):
-    # owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
     name = models.TextField()
     lessons = models.ManyToManyField(Lessons)
 

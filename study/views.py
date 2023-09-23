@@ -1,14 +1,10 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 from django.http import HttpResponse
 from .models import *
 from datetime import time, date, timedelta
 from json import dumps
-
-
-def index(request):
-    return HttpResponse("Hello, world!")
 
 def get_lessons(request, user_id, product_id=None):
     user = get_object_or_404(Students, id=user_id)
@@ -54,7 +50,7 @@ def get_stats(request):
             'viewed_lections': len(completed_id),
             'total_time_viewed': f'{hours}:{minutes:02}:{seconds:02}',
             'total_students': users_count,
-            'buing_percentage': f'{users_count / total_users:.2%}'
+            'buying_percentage': f'{users_count / total_users:.2%}'
         }
     return HttpResponse(dumps(answer))
 
