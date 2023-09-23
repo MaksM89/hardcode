@@ -13,7 +13,7 @@ class Lessons(models.Model):
     duration = models.TimeField()
 
     def __str__(self):
-        return f'L {self.title}, {self.videolink}, {self.duration}'
+        return f'L <{self.title}, {self.videolink}, {self.duration}>'
 
 class Products(models.Model):
     # owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
@@ -21,7 +21,7 @@ class Products(models.Model):
     lessons = models.ManyToManyField(Lessons)
 
     def __str__(self):
-        return f'P {self.name}'
+        return f'P <{self.name}>'
 
 class Students(models.Model):
     name = models.TextField()
@@ -29,7 +29,7 @@ class Students(models.Model):
     products = models.ManyToManyField(Products)
 
     def __str__(self):
-        return f'S {self.name}, {self.surname}'
+        return f'S <{self.name}, {self.surname}>'
 
 class StudentHistory(models.Model):
     student = models.ForeignKey(Students, on_delete=models.CASCADE)
@@ -42,9 +42,7 @@ class StudentHistory(models.Model):
         sec_v = self.viewed.hour * 3600 + self.viewed.minute * 60 + self.viewed.second
         sec_l = self.lesson.duration.hour * 3600 + self.lesson.duration.minute * 60 +\
                    self.lesson.duration.second
-        # sec_v = (self.viewed - time(0, 0, 0)).total_seconds()
-        # sec_t = (self.lesson.duration - time(0, 0, 0)).total_seconds
         return (sec_v / sec_l) >= 0.8
 
     def __str__(self):
-        return f'H {self.student.name}, {self.lesson.title}, {self.lastdate}, {self.complete}'
+        return f'H <{self.student.name}, {self.lesson.title}, {self.lastdate}, {self.complete}>'

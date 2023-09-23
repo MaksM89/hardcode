@@ -10,9 +10,12 @@ from json import dumps
 def index(request):
     return HttpResponse("Hello, world!")
 
-def get_lessons(request, user_id):
+def get_lessons(request, user_id, product_id=None):
     user = get_object_or_404(Students, id=user_id)
-    lessons = user.products.values('lessons__id').distinct()
+    if product_id is None:
+        lessons = user.products.values('lessons__id').distinct()
+    else:
+        lessons = user.products.filter(id=product_id).values('lessons__id').distinct()
     history = StudentHistory.objects.filter(student=user, lesson__in=lessons)
     answer = {
         'user': {
@@ -30,6 +33,29 @@ def get_lessons(request, user_id):
                 for h in history
             ]
     }
+    return HttpResponse(dumps(answer))
+
+def get_stats(request):
+    answer = {}
+    for product in Products.objects.all():
+        completed_id = set()
+        totaltime = timedelta(seconds=0)
+        for h in StudentHistory.objects.filter(lesson__in=product.lessons.distinct()).all():
+            if h.complete:
+                completed_id.add(h.lesson.id)
+            totaltime += timedelta(hours=h.viewed.hour, minutes=h.viewed.minute, seconds=h.viewed.second)
+        hours = totaltime.seconds // 3600
+        minutes = (totaltime.seconds - (hours * 3600)) // 60
+        seconds = totaltime.seconds  - (hours * 3600) - minutes * 60
+        hours += totaltime.days * 24
+        users_count = product.students_set.count()
+        total_users = Students.objects.count()
+        answer[product.name] = {
+            'viewed_lections': len(completed_id),
+            'total_time_viewed': f'{hours}:{minutes:02}:{seconds:02}',
+            'total_students': users_count,
+            'buing_percentage': f'{users_count / total_users:.2%}'
+        }
     return HttpResponse(dumps(answer))
 
 def init_db(request):
